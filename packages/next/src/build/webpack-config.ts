@@ -67,6 +67,7 @@ import { AppBuildManifestPlugin } from './webpack/plugins/app-build-manifest-plu
 import { SubresourceIntegrityPlugin } from './webpack/plugins/subresource-integrity-plugin'
 import { NextFontManifestPlugin } from './webpack/plugins/next-font-manifest-plugin'
 import { getSupportedBrowsers } from './utils'
+import { parallelAcornPlugin } from './webpack/plugins/parallel-acorn/parallel-acorn-plugin'
 
 type ExcludesFalse = <T>(x: T | false) => x is T
 type ClientEntries = {
@@ -2348,6 +2349,7 @@ export default async function getBaseWebpackConfig(
       ].filter(Boolean),
     },
     plugins: [
+      parallelAcornPlugin,
       dev && isClient && new ReactRefreshWebpackPlugin(webpack),
       // Makes sure `Buffer` and `process` are polyfilled in client and flight bundles (same behavior as webpack 4)
       (isClient || isEdgeServer) &&

@@ -132,6 +132,7 @@ export async function initialize(opts: {
         InstanceType<typeof import('../dev/hot-reloader').default>['ensurePage']
       >[0]
     ) {
+      console.log('router-server: ensurePage')
       // TODO: remove after ensure is pulled out of server
       return await devInstance?.hotReloader.ensurePage(match)
     },
@@ -143,6 +144,7 @@ export async function initialize(opts: {
       await devInstance?.hotReloader?.buildFallbackError()
       // Build the error page to ensure the fallback is built too.
       // TODO: See if this can be moved into hotReloader or removed.
+      console.log('fallback err')
       await devInstance?.hotReloader.ensurePage({
         page: '/_error',
         clientOnly: false,
@@ -549,6 +551,7 @@ export async function initialize(opts: {
           (fsChecker.appFiles.has(matchedOutput.itemPath) ||
             fsChecker.pageFiles.has(matchedOutput.itemPath))
         ) {
+          console.log('caught', matchedOutput.itemPath)
           await invokeRender(parsedUrl, 'pages', handleIndex, '/_error', {
             'x-invoke-status': '500',
             'x-invoke-error': JSON.stringify({
@@ -677,7 +680,7 @@ export async function initialize(opts: {
           parsedUrl,
           'app',
           handleIndex,
-          '/_not-found',
+          opts.dev ? '/not-found' : '/_not-found',
           {
             'x-invoke-status': '404',
           }

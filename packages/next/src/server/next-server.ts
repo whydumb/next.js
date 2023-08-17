@@ -650,7 +650,6 @@ export default class NextNodeServer extends BaseServer {
       )
     }
 
-    console.log('paths', paths, isAppPath)
     for (const pagePath of paths) {
       try {
         const components = await loadComponents({

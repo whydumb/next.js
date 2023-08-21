@@ -238,14 +238,21 @@ function checkExports(
   }
 }
 
-async function tryToReadFile(filePath: string, shouldThrow: boolean) {
+async function tryToReadFile(
+  filePath: string,
+  opts: { shouldThrow: boolean; shouldLog: boolean }
+) {
   try {
     return await fs.readFile(filePath, {
       encoding: 'utf8',
     })
-  } catch (error) {
-    if (shouldThrow) {
+  } catch (error: any) {
+    if (opts.shouldThrow) {
+      error.message = `Next.js ERROR: Failed to read file ${filePath}:\n${error.message}`
       throw error
+    } else if (opts.shouldLog) {
+      console.error(error)
+      return undefined
     }
   }
 }
@@ -410,7 +417,11 @@ function warnAboutUnsupportedValue(
 export async function isDynamicMetadataRoute(
   pageFilePath: string
 ): Promise<boolean> {
-  const fileContent = (await tryToReadFile(pageFilePath, true)) || ''
+  const fileContent =
+    (await tryToReadFile(pageFilePath, {
+      shouldThrow: true,
+      shouldLog: false,
+    })) || ''
   if (!/generateImageMetadata|generateSitemaps/.test(fileContent)) return false
 
   const swcAST = await parseModule(pageFilePath, fileContent)
@@ -435,7 +446,11 @@ export async function getPageStaticInfo(params: {
 }): Promise<PageStaticInfo> {
   const { isDev, pageFilePath, nextConfig, page, pageType } = params
 
-  const fileContent = (await tryToReadFile(pageFilePath, !isDev)) || ''
+  const fileContent =
+    (await tryToReadFile(pageFilePath, {
+      shouldThrow: !isDev,
+      shouldLog: !isDev,
+    })) || ''
   if (
     /runtime|preferredRegion|getStaticProps|getServerSideProps|export const/.test(
       fileContent
